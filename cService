@@ -1,0 +1,120 @@
+Public Class cService
+        Dim strsql As String
+        Dim info As String
+        Private _ID As System.Int32
+        Private _milihlagu As System.String
+        Private _durasi As System.String
+        Private _Paket As System.String
+        Public InsertState As Boolean = False
+        Public UpdateState As Boolean = False
+        Public DeleteState As Boolean = False
+        Public Property milihlagu()
+            Get
+                Return _milihlagu
+            End Get
+            Set(ByVal value)
+                _milihlagu = value
+            End Set
+        End Property
+        Public Property durasi()
+            Get
+                Return _durasi
+            End Get
+            Set(ByVal value)
+                _durasi = value
+            End Set
+        End Property
+        Public Property Paket()
+            Get
+                Return _Paket
+            End Get
+            Set(ByVal value)
+                _Paket = value
+            End Set
+        End Property
+        Public Sub Simpan()
+            Dim info As String
+            DBConnect()
+            If (Service_baru = True) Then
+                strsql = "Insert into Service(milihlagu,durasi,Paket) values ('" & _milihlagu & "','" & _durasi & "','" & _Paket & "')"
+                info = "INSERT"
+            Else
+                strsql = "update Service set milihlagu='" & _milihlagu & "', durasi='" & _durasi & "', Paket='" & _Paket & "' where milihlagu='" & _milihlagu & "'"
+                info = "UPDATE"
+            End If
+            myCommand.Connection = conn
+            myCommand.CommandText = strsql
+            Try
+                myCommand.ExecuteNonQuery()
+            Catch ex As Exception
+                If (info = "INSERT") Then
+                    InsertState = False
+                ElseIf (info = "UPDATE") Then
+                    UpdateState = False
+                Else
+                End If
+            Finally
+                If (info = "INSERT") Then
+                    InsertState = True
+                ElseIf (info = "UPDATE") Then
+                    UpdateState = True
+                Else
+                End If
+            End Try
+            DBDisconnect()
+        End Sub
+        Public Sub CariService(ByVal smilihlagu As String)
+            DBConnect()
+            strsql = "SELECT * FROM Service WHERE milihlagu='" & smilihlagu & "'"
+            myCommand.Connection = conn
+            myCommand.CommandText = strsql
+            DR = myCommand.ExecuteReader
+            If (DR.HasRows = True) Then
+                Service_baru = False
+                DR.Read()
+                milihlagu = Convert.ToString((DR("milihlagu")))
+                durasi = Convert.ToString((DR("durasi")))
+                Paket = Convert.ToString((DR("Paket")))
+            Else
+                MessageBox.Show("Data Tidak Ditemukan.")
+                Service_baru = True
+            End If
+            DBDisconnect()
+        End Sub
+        Public Sub Hapus(ByVal smilihlagu As String)
+            Dim info As String
+            DBConnect()
+            strsql = "DELETE FROM Service WHERE milihlagu='" & smilihlagu & "'"
+            info = "DELETE"
+            myCommand.Connection = conn
+            myCommand.CommandText = strsql
+            Try
+                myCommand.ExecuteNonQuery()
+                DeleteState = True
+            Catch ex As Exception
+                MessageBox.Show(ex.ToString)
+            End Try
+            DBDisconnect()
+        End Sub
+        Public Sub getAllData(ByVal dg As DataGridView)
+            Try
+                DBConnect()
+                strsql = "SELECT * FROM Service"
+                myCommand.Connection = conn
+                myCommand.CommandText = strsql
+                myData.Clear()
+                myAdapter.SelectCommand = myCommand
+                myAdapter.Fill(myData)
+                With dg
+                    .DataSource = myData
+                    .AllowUserToAddRows = False
+                    .AllowUserToDeleteRows = False
+                    .ReadOnly = True
+                End With
+            Catch ex As Exception
+                MessageBox.Show(ex.ToString)
+            Finally
+                DBDisconnect()
+            End Try
+        End Sub
+    End Class
