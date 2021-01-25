@@ -1,0 +1,99 @@
+Imports System.Data.OleDb
+Imports System.Security.Cryptography
+Imports DevComponents.DotNetBar
+
+Module MyMod
+    Public mycommand As New System.Data.OleDb.OleDbCommand
+    Public myadapter As New System.Data.OleDb.OleDbDataAdapter
+    Public mydata As New DataTable
+    Public DR As System.Data.OleDb.OleDbDataReader
+    Public SQL As String
+    Public conn As New OleDbConnection
+    Public cn As New Connection
+
+    Public TotalTab As Integer = 0
+    Public x As Integer
+
+    Public cldservice As New Service
+    Public cldboking As New frmBooking
+    Public cldfd As New Food
+    
+
+    Public Service As Boolean
+    Public Order As Boolean
+    Public Food As Boolean
+
+
+    'Tabel Service
+    '--------------------------------
+    Public Service_baru As Boolean
+    Public oService As New cService
+    '--------------------------------
+    'Tabel User
+    '--------------------------------
+    Public user_baru As Boolean
+    Public oUser As New User
+    '--------------------------------
+    'Tabel Order
+    '--------------------------------
+    Public Booking_baru As Boolean
+    Public oBoking As New Booking
+    '--------------------------------
+    'Tabel Food
+    '--------------------------------
+    Public Food_baru As Boolean
+    Public oFood As New cFood
+    '-------------------------------
+
+    Public login_valid As Boolean
+
+    Public Sub BikinMenu(ByVal Child As Form, ByVal mytab As TabControl, ByVal sTitle As String)
+
+        Dim newTab As DevComponents.DotNetBar.TabItem = mytab.CreateTab(sTitle)
+        Dim panel As DevComponents.DotNetBar.TabControlPanel = DirectCast(newTab.AttachedControl, Panel)
+
+
+        Child.TopLevel = False
+        Child.FormBorderStyle = Windows.Forms.FormBorderStyle.None
+        Child.Dock = DockStyle.Fill
+        Child.Show()
+        panel.Controls.Add(Child)
+
+    End Sub
+    Public Function getTabIndex(ByVal mytab As TabControl, ByVal sCari As String)
+        Dim i As Integer
+        For i = 0 To TotalTab - 1
+            If (mytab.Tabs(i).Text = sCari) Then
+
+                Exit For
+            End If
+        Next
+        getTabIndex = i
+    End Function
+
+    
+
+    Public Sub DBConnect()
+        cn.DataSource = "C:\Users\asus\Documents\Database2.accdb"
+
+        cn.Connect()
+    End Sub
+
+    Public Sub DBDisconnect()
+        cn.Disconnect()
+    End Sub
+
+    Public Function getMD5Hash(ByVal strToHash As String) As String
+
+        Dim md5Obj As New System.Security.Cryptography.MD5CryptoServiceProvider()
+        Dim bytesToHash() As Byte = System.Text.Encoding.ASCII.GetBytes(strToHash)
+        bytesToHash = md5Obj.ComputeHash(bytesToHash)
+        Dim strResult As String = ""
+        Dim b As Byte
+        For Each b In bytesToHash
+            strResult += b.ToString("x2")
+        Next
+        Return strResult
+    End Function
+
+End Module
